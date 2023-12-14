@@ -406,6 +406,8 @@ async function getBlock(block: Block) {
             continue;
           }
 
+          const metadata = componentData["metadata"];
+
           const code = componentData[""] || "";
           let previousCode = "";
           let linesAdded = 0;
@@ -467,7 +469,7 @@ async function getBlock(block: Block) {
             `Attempting to insert component version record for: componentAuthorId=${componentAuthorId}, componentName=${componentName}`
           );
 
-          await context.db.Versions.upsert(
+          const versionsItems = await context.db.Versions.upsert(
             version,
             ["receipt_id", "component_name", "component_author_id"],
             [
@@ -482,6 +484,24 @@ async function getBlock(block: Block) {
           console.log(
             `Successfully inserted component version record for: componentAuthorId=${componentAuthorId}, componentName=${componentName}`
           );
+
+          const versionId = versionsItems[0].id;
+          const metadataData = {
+            version_id: versionId,
+            block_height: blockHeight,
+            block_timestamp_ms: blockTimestampMs,
+            name: metadata?.name,
+            image_ipfs_cid: metadata?.image?.ipfs_cid,
+            description: metadata?.description,
+            fork_of: metadata?.fork_of,
+            tags: metadata?.tags ? Object.keys(metadata.tags).join(',') : null,
+          }
+          await context.db.Metadata.insert(
+            metadataData
+          );
+
+          console.log(`Successfully inserted component metadata record for: componentAuthorId=${componentAuthorId}, componentName=${componentName}`);
+
         }
       } catch (err) {
         console.log(
