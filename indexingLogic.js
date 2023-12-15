@@ -454,6 +454,13 @@ async function getBlock(block: Block) {
             if (result.removed) linesRemoved += result.count;
           });
 
+          let forkSource = metadata?.fork_of ? metadata?.fork_of.split('@')[0]: null;
+          let forkBlockHeight = metadata?.fork_of ? metadata?.fork_of.split('@')[1]: null;
+          if (forkSource === `${componentAuthorId}/widget/${componentName}`) {
+            forkSource = null;
+            forkBlockHeight = null;
+          }
+
           const version = {
             block_height: blockHeight,
             block_timestamp_ms: blockTimestampMs,
@@ -463,6 +470,13 @@ async function getBlock(block: Block) {
             lines_added: linesAdded,
             lines_removed: linesRemoved,
             receipt_id: receiptId,
+            name: metadata?.name,
+            image_ipfs_cid: metadata?.image?.ipfs_cid,
+            description: metadata?.description,
+            fork_of_source: forkSource,
+            fork_of_block_height: forkBlockHeight,
+            tags: metadata?.tags ? Object.keys(metadata.tags).join(',') : null,
+            website: metadata?.website
           };
 
           console.log(
@@ -478,31 +492,19 @@ async function getBlock(block: Block) {
               "code",
               "lines_added",
               "lines_removed",
+              "name",
+              "image_ipfs_cid",
+              "description",
+              "fork_of_source",
+              "fork_of_block_height",
+              "tags",
+              "website"
             ]
           );
 
           console.log(
             `Successfully inserted component version record for: componentAuthorId=${componentAuthorId}, componentName=${componentName}`
           );
-
-          const versionId = versionsItems[0].id;
-          const metadataData = {
-            version_id: versionId,
-            block_height: blockHeight,
-            block_timestamp_ms: blockTimestampMs,
-            name: metadata?.name,
-            image_ipfs_cid: metadata?.image?.ipfs_cid,
-            description: metadata?.description,
-            fork_of: metadata?.fork_of,
-            tags: metadata?.tags ? Object.keys(metadata.tags).join(',') : null,
-            website: metadata?.website
-          }
-          await context.db.Metadata.insert(
-            metadataData
-          );
-
-          console.log(`Successfully inserted component metadata record for: componentAuthorId=${componentAuthorId}, componentName=${componentName}`);
-
         }
       } catch (err) {
         console.log(
