@@ -31,6 +31,7 @@ CREATE TABLE
     "description" VARCHAR,
     "fork_of" VARCHAR,
     "tags" VARCHAR,
+    "website" VARCHAR,
     PRIMARY KEY ("id")
   );
 

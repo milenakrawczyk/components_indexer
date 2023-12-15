@@ -495,6 +495,7 @@ async function getBlock(block: Block) {
             description: metadata?.description,
             fork_of: metadata?.fork_of,
             tags: metadata?.tags ? Object.keys(metadata.tags).join(',') : null,
+            website: metadata?.website
           }
           await context.db.Metadata.insert(
             metadataData
